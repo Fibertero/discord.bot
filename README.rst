@@ -84,4 +84,4 @@ You can find more examples in the examples directory.
 Links
 ------
 
-- Official Discord Server `https://discord.gg/Tc8zB8pnhp`_
+- Official Discord Server https://discord.gg/Tc8zB8pnhp
