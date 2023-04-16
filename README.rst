@@ -50,27 +50,33 @@ Quick Example
 
 .. code:: py
 
-    import asyncio
-    from discord.bot import ClientApp
+    import os
+    import discordbot
+    from discordbot.bot import ClientApp, Command
+    from discordbot.embed import Embed
+    from discordbot.selectMenu import SelectMenuBuilder
 
-    TOKEN = 'BOT TOKEN HERE'
-    GUILD_ID = guild_id_here
-    aplication_id = aplication_id
+    TOKEN = os.environ.get('DISCORD_BOSONS_TESTS')
+    CLIENT_ID = client_id
+    GUILD_ID = GUILD_ID
 
-    async def hello_func(ctx):
-        await ctx.send(content="Mensagem com botão:")
+    bot = ClientApp(TOKEN, CLIENT_ID)
 
-    async def main():
-        async with ClientApp(TOKEN, aplication_id) as bot:
-            hello_command = Command("hello", hello_func, "Respond with 'Hello, world!'")
-            bot.add_command(hello_command)
-            
-            await bot.sync_with_guild(GUILD_ID)  # Sincroniza comandos de barra com o servidor
+    @bot.event('READY')
+    async def on_ready(bot):
+        print("Bot online!")
+        #register the commands on a server
+        await bot.sync_with_guild(GUILD_ID)
+        #sync global commands
+        #await bot.sync_global_commands()
 
-            await bot.connect()
+    @bot.slash_command(name="hello", description="Send hello!")
+    async def hello(ctx):
+        await ctx.defer(ephemeral=False)
+        await ctx.send(content="Hello!")
 
     if __name__ == "__main__":
-        asyncio.run(main())
+        bot.run()
 
 
 You can find more examples in the examples directory.
