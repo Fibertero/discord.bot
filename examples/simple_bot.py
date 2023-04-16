@@ -1,52 +1,27 @@
-import asyncio
-from discord.bot import ClientApp, Command, Embed, SelectMenuBuilder
+import os
+import discordbot
+from discordbot.bot import ClientApp, Command
+from discordbot.embed import Embed
+from discordbot.selectMenu import SelectMenuBuilder
 
-TOKEN = 'TOKEN HERE'
-GUILD_ID = GUILD_ID_HERE
-aplication_id = Application_ID_Here
+TOKEN = os.environ.get('DISCORD_BOSONS_TESTS')
+CLIENT_ID = client_id
+GUILD_ID = GUILD_ID
 
-components = [
-    {
-        "type": 1,  # Action Row
-        "components": [
-            {
-                "type": 2,  # Botão
-                "label": "Clique aqui",
-                "style": 1,  # Estilo primário (verde)
-                "custom_id": "meu_botao"
-            }
-        ]
-    }
-]
+bot = ClientApp(TOKEN, CLIENT_ID)
 
-async def handle_button_click(ctx, interaction_data):
-	# Implemente a lógica para lidar com interações de botões aqui
-	await ctx.send(content="Mensagem com botão:")
+@bot.event('READY')
+async def on_ready(bot):
+    print("Bot online!")
+    #register the commands on a server
+    await bot.sync_with_guild(GUILD_ID)
+    #sync global commands
+	#await bot.sync_global_commands()
 
-async def handle_on_select_menu(ctx, interaction_data):
-	await ctx.send(content="Menu select")
-
-async def hello_func(ctx):
-	embed = Embed(title="Olá, mundo!", description="Esta é uma mensagem com um embed.", color=0x00FF00)
-	options = [
-		{"label": "Opção 1", "value": "option1"},
-		{"label": "Opção 2", "value": "option2"},
-		{"label": "Opção 3", "value": "option3"},
-	]
-
-	select_menu = SelectMenuBuilder.create_select_menu("my_select_menu", options, "Escolha uma opção")
-	await ctx.send(content="Mensagem com botão:", embed=embed, components=[select_menu], ephemeral=False)
-
-async def main():
-	async with ClientApp(TOKEN, aplication_id) as bot:
-		hello_command = Command("hello", hello_func, "Respond with 'Hello, world!'")
-		bot.add_command(hello_command)
-		bot.on_button_click = handle_button_click  # Associe o evento ao manipulador
-		bot.on_select_menu = handle_on_select_menu
-		
-		await bot.sync_with_guild(GUILD_ID)  # Sincroniza comandos de barra com o servidor
-
-		await bot.connect()
+@bot.slash_command(name="hello", description="Send hello!")
+async def hello(ctx):
+    await ctx.defer(ephemeral=False)
+    await ctx.send(content="Hello!")
 
 if __name__ == "__main__":
-	asyncio.run(main())
+    bot.run()

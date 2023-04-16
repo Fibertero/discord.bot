@@ -1,5 +1,6 @@
-import aiohttp
 import json
+import aiohttp
+from aiohttp.helpers import current_task
 
 API_BASE_URL = "https://discord.com/api/v10"
 
@@ -8,6 +9,22 @@ class HTTPClient:
 	def __init__(self, token, session):
 		self.token = token
 		self.session = session
+	
+	async def close(self):
+		await self.session.close()
+
+	async def start(self):
+		self.session = aiohttp.ClientSession()
+
+	async def get_guilds(self):
+		url = f"https://discord.com/api/users/@me/guilds"
+		headers = {"Authorization": f"Bot {self.token}"}
+		async with self.session.get(url, headers=headers) as resp:
+			if resp.status == 200:
+				return await resp.json()
+			else:
+				print(f"Erro ao obter guildas: {resp.status} {await resp.text()}")
+				return []
 
 	async def request(self, method, path, **kwargs):
 		headers = kwargs.get("headers", {})
