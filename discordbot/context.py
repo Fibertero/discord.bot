@@ -1,5 +1,6 @@
 import asyncio, aiohttp, json
 from urllib import parse, request
+from .custom_json_encoder import CustomJSONEncoder
 
 class Context:
 	def __init__(self, bot, message_data):
@@ -58,13 +59,15 @@ class Context:
 			if file:
 				# Se um arquivo for fornecido, use multipart para enviar o arquivo junto com o payload JSON
 				form_data = aiohttp.FormData()
-				form_data.add_field("payload_json", json.dumps(json_payload), content_type="application/json")
+				# Modifique esta linha para usar o CustomJSONEncoder
+				form_data.add_field("payload_json", json.dumps(json_payload, cls=CustomJSONEncoder), content_type="application/json")
 				form_data.add_field("file", file, filename=file.name, content_type="application/octet-stream")
 
 				async with aiohttp.ClientSession() as session:
 					async with session.post(url, headers=headers, data=form_data) as response:
 						await response.json()
 			else:
+
 				async with aiohttp.ClientSession() as session:
 					async with session.post(url, headers=headers, json=json_payload) as response:
 						await response.json()
@@ -105,10 +108,10 @@ class Context:
 		url = f"https://discord.com/api/v10/channels/{self.channel_id}/messages/{message_id}"
 		headers = {"Authorization": f"Bot {self.bot.token}"}
 
+		json_payload = json.dumps(json_payload, cls=CustomJSONEncoder)
 		async with aiohttp.ClientSession() as session:
-			async with session.delete(url, headers=headers) as response:
-				if response.status != 204:
-					print(f"Failed to delete message. Status code: {response.status}")
+			async with session.post(url, headers=headers, data=json_payload) as response:
+				await response.json()
 
 	async def add_reaction(self, message_id, emoji):
 		"""

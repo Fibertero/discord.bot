@@ -5,6 +5,7 @@ from .context import Context
 from .embed import Embed
 from .commands import Command
 from .options import OptionType, Option
+from .types import *
 
 class ClientApp:
 	def __init__(self, token, client_id):
@@ -221,12 +222,17 @@ class ClientApp:
 			options = []
 			for param in signature(func).parameters.values():
 				if param.name != "ctx":
+					if param.annotation == Emoji:
+						option_type = OptionType.EMOJI
+					else:
+						option_type = OptionType.from_annotation(param.annotation)
+
 					options.append(Option(
 						name=param.name,
 						description=f"Enter a {param.annotation.__name__}",
-						type=OptionType.from_annotation(param.annotation),
+						type=option_type,
 						required=param.default == Parameter.empty
-					))
+					).to_dict())
 			command = Command(name, description, func, options=options)
 			self.add_command(command)
 			return func
@@ -326,11 +332,19 @@ class ClientApp:
 
 	async def execute_slash_command(self, command_name, interaction_data):
 		command = self.get_command(command_name)
-		
+
 		if command is not None:
 			ctx = self.create_context(interaction_data)
-			response = await command.func(ctx)
-			
+
+			# Adicione este trecho para extrair os argumentos das opções
+			args = []
+			kwargs = {}
+			if "options" in interaction_data["data"]:
+				for option in interaction_data["data"]["options"]:
+					kwargs[option["name"]] = option["value"]
+
+			response = await command.func(ctx, **kwargs)
+
 			if not ctx.deferred:  # Check if defer() has been called
 				await self.send_response(interaction_data, response)
 		else:
@@ -339,6 +353,7 @@ class ClientApp:
 			# Log a warning message or send an error response to the user
 			print(f"Command '{command_name}' not found")
 			return
+
 	
 	async def send_interaction_response(
 		self,
