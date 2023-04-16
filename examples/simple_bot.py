@@ -1,8 +1,5 @@
 import os
-import discordbot
-from discordbot.bot import ClientApp, Command
-from discordbot.embed import Embed
-from discordbot.selectMenu import SelectMenuBuilder
+from discordbot.bot import ClientApp
 
 TOKEN = os.environ.get('DISCORD_BOSONS_TESTS')
 CLIENT_ID = client_id
