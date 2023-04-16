@@ -8,6 +8,12 @@ from .options import OptionType, Option
 
 class ClientApp:
 	def __init__(self, token, client_id):
+		"""
+		TODO:
+		This code represents the second part of the ClientApp class, containing additional methods to handle various tasks related to Discord interactions. Some of the tasks include sending interaction responses, creating and managing slash commands, sending messages, and syncing commands with a guild (server). Additionally, it includes methods for handling global commands and guild audit logs.
+		The code also contains methods for retrieving help information, deferring responses, and managing guild emojis. These methods allow the bot to perform operations such as listing, creating, modifying, and deleting guild emojis.
+		In summary, this part of the ClientApp class adds essential functionalities to interact with the Discord API, enabling the bot to perform various tasks and respond to user interactions.
+		"""
 		self.token = token
 		#self.session = aiohttp.ClientSession()
 		self.loop = asyncio.new_event_loop()

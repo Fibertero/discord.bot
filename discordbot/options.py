@@ -8,6 +8,12 @@ from .types.role import Role
 
 
 class OptionType(IntEnum):
+    """
+    TODO:
+    This code snippet defines several classes and an enumeration to create and manage options for commands in a Discord bot. The classes include OptionType, Option, and Choice, while the enumeration is OptionType.    
+    OptionType is an enumeration subclassing IntEnum that defines various types of command options. The from_annotation class method takes an annotation as input and returns the corresponding OptionType value based on the type of the annotation.
+    Note: The code also imports several types used in the OptionType enumeration, such as Emoji, Member, User, TextChannel, and Role. These types are not defined in the code snippet, so you can assume that they are defined elsewhere in the bot's codebase.
+    """
     SUB_COMMAND = 1
     SUB_COMMAND_GROUP = 2
     STRING = 3
@@ -45,11 +51,16 @@ class OptionType(IntEnum):
 
 
 class Option:
-    def __init__(self, name, description, type, required):
+    """
+    TODO:
+    Option class represents a command option. It has a name, description, type (from OptionType), whether it's required or not, and an optional list of choices. The __init__ method initializes the option instance with the given parameters. The to_dict method converts the Option object into a dictionary format, which can be used when interacting with the Discord API.
+    """
+    def __init__(self, name, description, type, required, choices=None):
         self.name = name
         self.description = description
         self.type = type
         self.required = required
+        self.choices = choices if choices is not None else []
 
     def to_dict(self):
         return {
@@ -57,4 +68,21 @@ class Option:
             "description": self.description,
             "type": self.type.value,
             "required": self.required,
+            "choices": [choice.to_dict() for choice in self.choices] if self.choices else None
+        }
+    
+
+class Choice:
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+    def to_dict(self):
+        """
+        TODO:
+        Choice class represents a single choice within an option. It has a name and a value. The __init__ method initializes the choice instance with the given parameters. The to_dict method converts the Choice object into a dictionary format, which can also be used when interacting with the Discord API.
+        """
+        return {
+            "name": self.name,
+            "value": self.value
         }

@@ -3,6 +3,13 @@ from urllib import parse, request
 
 class Context:
 	def __init__(self, bot, message_data):
+		"""
+		TODO:
+		The code uses the Discord API to perform the actions, and it makes the requests with the aiohttp library to ensure that the requests are asynchronous and non-blocking. This is important for a Discord bot to ensure that it can handle multiple commands concurrently without causing delays.
+		In each method, the appropriate API endpoint is constructed using the base URL (https://discord.com/api/v10/) and the required parameters (like channel ID, message ID, etc.). The headers for the requests include the bot's authorization token. The responses from the Discord API are then handled accordingly.
+		In the send and edit methods, if a file is included in the request, the code uses the aiohttp.FormData class to create a multipart request payload that includes both the JSON data and the file.
+		The add_reaction method encodes the emoji to a URL-safe format using the urllib.parse.quote function before making the request.
+		"""
 		self.bot = bot
 		self.channel_id = message_data["channel_id"]
 		self.user_id = message_data["member"]["user"]["id"]
@@ -12,10 +19,18 @@ class Context:
 		self.deferred = False
 
 	async def defer(self, ephemeral=True):
+		"""
+		TODO:
+		Marks the interaction as deferred, which allows the bot to take more time to process the command without causing a timeout.
+		"""
 		await self.bot.defer(self.message_data, ephemeral)
 		self.deferred = True
 	
 	async def send(self, content=None, **kwargs):
+		"""
+		TODO:
+		Sends a message to the specified channel with optional parameters like content, embed, components, ephemeral, file, and text-to-speech (TTS).
+		"""
 		content = kwargs.get("content") if content is None else content
 		embed = kwargs.get("embed")
 		components = kwargs.get("components")
@@ -56,6 +71,10 @@ class Context:
 
 
 	async def edit(self, message_id, content=None, **kwargs):
+		"""
+		TODO:
+		Edits an existing message with the given message ID and new content, embed, components, file, and TTS.
+		"""
 		embed = kwargs.get("embed")
 		components = kwargs.get("components")
 		file = kwargs.get("file")
@@ -79,6 +98,10 @@ class Context:
 				await response.json()
 
 	async def delete(self, message_id):
+		"""
+		TODO:
+		Deletes a message with the given message ID.
+		"""
 		url = f"https://discord.com/api/v10/channels/{self.channel_id}/messages/{message_id}"
 		headers = {"Authorization": f"Bot {self.bot.token}"}
 
@@ -88,6 +111,10 @@ class Context:
 					print(f"Failed to delete message. Status code: {response.status}")
 
 	async def add_reaction(self, message_id, emoji):
+		"""
+		TODO:
+		Adds a reaction (emoji) to a message with the given message ID.
+		"""
 		# Encode the emoji to URL format
 		encoded_emoji = parse.quote(emoji, safe='')
 		url = f"https://discord.com/api/v10/channels/{self.channel_id}/messages/{message_id}/reactions/{encoded_emoji}/@me"
